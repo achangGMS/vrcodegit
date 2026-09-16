@@ -78,6 +78,25 @@ def run_on_under_attack():
         if (attempts >= 300):
             wiggle_loose()
 
+def slip_proofing():
+    x = rover.location(BASE,X,MM)
+    y = rover.location(BASE,Y,MM)
+    checknum = 0
+    while (checknum < 20):
+        wait(10, MSEC)
+        # has not moved
+        if (x-2 < rover.location(BASE,X,MM) < x+2):
+            if (y-2 < rover.location(BASE,Y,MM) < y+2):
+                checknum = checknum + 1
+                x = rover.location(BASE,X,MM)
+                y = rover.location(BASE,Y,MM)
+            else:  
+                return
+        else:
+            return
+    if (checknum >= 20):
+        wiggle_loose()
+
 # Add project code in "main"
 def main():
     brain.clear()
@@ -102,7 +121,9 @@ def main():
             rover.drop(MINERALS)
             rover.use(MINERALS)
             dance_event.broadcast_and_wait()
-                
+
+        #slip_proofing()
+
         if (rover.sees(HAZARD)):
             hazard_dist = rover.get_distance(HAZARD,MM);
         if (rover.sees(OBSTACLE)):
@@ -132,8 +153,8 @@ def main():
                     rover.pickup(MINERALS)
                 else:
                     drivetrain.drive_for(REVERSE, 10, MM)
-                    drivetrain.turn_for(RIGHT, 45, DEGREES)
-
+                    turndegree = random.randint(30, 60)
+                    drivetrain.turn_for(RIGHT, turndegree, DEGREES)
 
         if (checkagain == 0):
             hazard_dist = rover.get_distance(HAZARD,MM)
@@ -147,7 +168,11 @@ def main():
                     drivetrain.drive_for(FORWARD, 200, MM)
                 else:
                     drivetrain.drive_for(REVERSE, 10, MM)
-                    drivetrain.turn_for(RIGHT, 90, DEGREES)
+                    turndegree = random.randint(45, 120)
+                    drivetrain.turn_for(RIGHT, turndegree, DEGREES)
 
 # VR threads — Do not delete
 vr_thread(main)
+
+# VR threads — Do not delete
+vr_thread(slip_proofing)
